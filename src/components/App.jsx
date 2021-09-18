@@ -1,10 +1,14 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { SearchBar } from './Searchbar/Searchbar';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
 
-export class App extends React.Component {
+export const App =()=> {
+ const [images, setImages] = useState(initialState);
+ const [isModalOpen, setModalOpen] = useState(initialState);
+ const [searchWord, setSearchWord] = useState(initialState);
+ const [state, setstate] = useState(initialState);
   state = {
     images: [],
     isModalOpen: false,

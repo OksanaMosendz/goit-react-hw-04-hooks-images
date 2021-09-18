@@ -17,27 +17,7 @@ export const ImageGallery = ({ images, onClick, setImages, searchWord }) => {
       setImages(images);
       setLoading(false);
     });
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    getImages(searchWord, 1).then(images => {
-      setImages(images);
-      setLoading(false);
-    });
   }, [searchWord, setImages]);
-
-  // componentDidUpdate() {
-  //   const prevSearchWord = prevProps.searchWord;
-  //   const nextSearchWord = this.props.searchWord;
-  //       if (prevSearchWord !== nextSearchWord) {
-  //       setLoading(true);
-  //     getImages(nextSearchWord, 1).then(images => {
-  //       setImages(images);
-  //       setLoading(false);
-  //     });
-  //   }
-  // }
 
   return (
     <div className={css.ImageGalleryContainer}>
