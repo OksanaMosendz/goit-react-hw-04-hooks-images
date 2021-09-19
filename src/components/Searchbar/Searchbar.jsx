@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import css from './SearchBar.module.css';
 
-export const SearchBar = ({ onSubmit }) => {
+export const SearchBar = ({ onSubmit, searchWord }) => {
   const [inputValue, setInputValue] = useState('');
 
   const onSubmitForm = e => {
     e.preventDefault();
-    onSubmit(inputValue);
+    if (inputValue !== searchWord) {
+      onSubmit(inputValue);
+    } else return;
   };
 
   return (
@@ -32,5 +34,6 @@ export const SearchBar = ({ onSubmit }) => {
 };
 
 SearchBar.propTypes = {
+  searchWord: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };

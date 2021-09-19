@@ -1,83 +1,100 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { SearchBar } from './Searchbar/Searchbar';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
+import { getImages } from 'store/request/getImages';
+import { Notification } from './Notification/Notification';
 
-export const App =()=> {
- const [images, setImages] = useState(initialState);
- const [isModalOpen, setModalOpen] = useState(initialState);
- const [searchWord, setSearchWord] = useState(initialState);
- const [state, setstate] = useState(initialState);
-  state = {
-    images: [],
-    isModalOpen: false,
-    searchWord: '',
-    modalImage: {},
-  };
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [searchWord, setSearchWord] = useState('');
+  const [modalImage, setModalImage] = useState({});
+  const [isLoading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [notification, setNotification] = useState('');
 
-  onHadleSubmitForm = word => {
-    if (word.trim() !== '') {
-      this.setState({
-        searchWord: word,
-        images: [],
+  useEffect(() => {
+    if (searchWord.trim() !== '') {
+      setLoading(true);
+      getImages(searchWord, 1).then(imgs => {
+        console.log('1');
+        setLoading(false);
+        setImages(imgs);
+        if (imgs.length === 0) {
+          setNotification(
+            ' No search results! Change your search word and try again!',
+          );
+        }
       });
     }
-  };
+  }, [searchWord, setNotification]);
 
-  setImages = imgs => {
-    this.setState({ images: imgs });
-  };
+  useEffect(() => {
+    if (page > 1) {
+      setLoading(true);
+      getImages(searchWord, page).then(imgs => {
+        setImages(prevImgs => prevImgs.concat(imgs));
+        setLoading(false);
 
-  LoadMoreImages = imgs => {
-    const { images } = this.state;
-    this.setState({ images: images.concat(imgs) });
-  };
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth',
+        });
+      });
+    }
+  }, [page, searchWord]);
 
-  onHandleCloseModal = e => {
-    if (e.target.id === 'overley') {
-      this.setState({ isModalOpen: false });
+  const onHadleSubmitForm = word => {
+    if (word.trim() !== '') {
+      setNotification('');
+      setSearchWord(word);
+      setImages([]);
     }
   };
 
-  onHandleClickImage = e => {
-    const { images } = this.state;
+  const onHandleCloseModal = e => {
+    if (e.target.id === 'overley') {
+      setModalOpen(false);
+    }
+  };
+
+  const onHandleClickImage = e => {
     const modalImage = images.find(image => e.target.id === String(image.id));
-    this.setState({ isModalOpen: true, modalImage: modalImage });
+    setModalOpen(true);
+    setModalImage(modalImage);
 
     document.addEventListener('keydown', e => {
       if (e.code === 'Escape') {
-        this.setState({ isModalOpen: false });
+        setModalOpen(false);
       }
     });
   };
 
-  render() {
-    const { images, isModalOpen, modalImage, searchWord } = this.state;
-    return (
-      <>
-        <SearchBar onSubmit={this.onHadleSubmitForm} />
+  return (
+    <>
+      <SearchBar onSubmit={onHadleSubmitForm} searchWord={searchWord} />
 
-        {searchWord.trim() !== '' && (
-          <ImageGallery
-            images={images}
-            onClick={this.onHandleClickImage}
-            setImages={this.setImages}
-            searchWord={searchWord}
-          />
-        )}
+      {images.length !== 0 ? (
+        <ImageGallery
+          images={images}
+          onClick={onHandleClickImage}
+          addImages={imgs => setImages(imgs)}
+          searchWord={searchWord}
+          isLoading={isLoading}
+        />
+      ) : (
+        <Notification notification={notification} />
+      )}
 
-        {images.length > 0 && (
-          <Button
-            searchWord={searchWord}
-            LoadMoreImages={this.LoadMoreImages}
-          />
-        )}
-
-        {isModalOpen && (
-          <Modal image={modalImage} onClick={this.onHandleCloseModal} />
-        )}
-      </>
-    );
-  }
-}
+      <Button
+        searchWord={searchWord}
+        onClick={() => setPage(prevPage => prevPage + 1)}
+        images={images}
+        isLoading={isLoading}
+      />
+      {isModalOpen && <Modal image={modalImage} onClick={onHandleCloseModal} />}
+    </>
+  );
+};
