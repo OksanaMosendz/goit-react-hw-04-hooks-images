@@ -19,7 +19,6 @@ export const App = () => {
     if (searchWord.trim() !== '') {
       setLoading(true);
       getImages(searchWord, 1).then(imgs => {
-        console.log('1');
         setLoading(false);
         setImages(imgs);
         if (imgs.length === 0) {
@@ -51,6 +50,7 @@ export const App = () => {
       setNotification('');
       setSearchWord(word);
       setImages([]);
+      setPage(1);
     }
   };
 
